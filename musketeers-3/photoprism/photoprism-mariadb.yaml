@@ -21,4 +21,5 @@ spec:
     auth:
       username: "photoprism"
       database: "photoprism"
-      existingSecret: "photoprism-db"
+      # existingSecret: "photoprism-db"
+      password: "dlpFQUZPNG9mbDBxd0NSbUZV"
