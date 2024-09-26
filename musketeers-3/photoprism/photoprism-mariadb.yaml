@@ -1,0 +1,24 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: photoprism-mariadb
+  namespace: photoprism
+spec:
+  chart:
+    spec:
+      chart: mariadb
+      reconcileStrategy: ChartVersion
+      version: 11.1.3
+      sourceRef:
+        kind: HelmRepository
+        name: bitnami
+        namespace: flux-system
+  interval: 10m0s
+  values:
+    global:
+      storageClass: nfs-sc
+    auth:
+      username: "photoprism"
+      database: "photoprism"
+      existingSecret: "photoprism-db"

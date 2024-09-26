@@ -1,0 +1,61 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: oauth2-proxy
+  namespace: photoprism
+spec:
+  chart:
+    spec:
+      chart: oauth2-proxy
+      reconcileStrategy: ChartVersion
+      version: 4.2.2
+      sourceRef:
+        kind: HelmRepository
+        name: oauth2-proxy-helm-source
+        namespace: flux-system
+  interval: 10m0s
+  values:
+    config:
+      configFile: |-
+        # email_domains = ["improwised.com"]
+        provider="oidc"
+        redirect_url="https://photos.pride.improwised.dev/oauth2/callback"
+        oidc_issuer_url="https://dex.improwised.dev"
+        cookie_secret="OQINaROshtE9TcZkNAm-5Zs2Pv3xaWytBmc5W7sPX7w="
+        client_id="photoprism"
+        client_secret="zlG5cfYYobIIbk8raL"
+        cookie_secure="false"
+        cookie_expire="48h"
+        cookie_samesite="strict"
+        upstreams="http://photoprism-app-photoprism-svc-svc:2342/"
+        http_address="0.0.0.0:4180"
+        skip_provider_button="true"
+    image:
+      repository: "quay.io/oauth2-proxy/oauth2-proxy"
+      tag: "v7.2.1"
+      pullPolicy: "IfNotPresent"
+    ingress:
+      enabled: true
+      path: /
+      hosts:
+      - photos.pride.improwised.dev
+      className: nginx
+    resources:
+      requests:
+        cpu: 100m
+        memory: 100Mi
+    proxyVarsAsSecrets: false
+    authenticatedEmailsFile:
+      enabled: true
+      persistence: secret
+      template: ""
+      restrictedUserAccessKey: "restricted_access"
+      restricted_access: |-
+        satish@improwised.com
+        rakshit@improwised.com
+        shailesh@improwised.com
+        milan@improwised.com
+        nirav.raval@improwised.com
+        khushal.mer@improwised.com
+      annotations: {}
