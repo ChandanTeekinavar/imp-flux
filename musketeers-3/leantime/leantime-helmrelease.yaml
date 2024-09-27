@@ -1,0 +1,30 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: leantime
+  namespace: leantime
+spec:
+  chart:
+    spec:
+      chart: leantime
+      reconcileStrategy: ChartVersion
+      version: 1.2.1
+      sourceRef:
+        kind: HelmRepository
+        name: leantime
+        namespace: flux-system
+  interval: 10m0s
+  values:
+    internalDatabase:
+      persistence:
+        enabled: true
+        size: 2Gi
+        accessMode: ReadWriteOnce
+        storageClass: "local-path"
+    persistence:
+      enabled: false
+      size: 1Gi
+      accessMode: ReadWriteOnce
+      storageClass: "local-path"
+    
