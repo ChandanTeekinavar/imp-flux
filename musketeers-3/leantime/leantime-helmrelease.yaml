@@ -22,6 +22,9 @@ spec:
         size: 2Gi
         accessMode: ReadWriteOnce
         storageClass: "local-path"
+        user: leantime
+        password: "KX7kPlBxM7mBnshgsQcJK21Hkn2ojWfJzU3YMFg8"
+        rootPassword: "3yEUQ45SSG2q25Xj4PW22frO"
     ingress:
       enabled: true
       className: "nginx"
