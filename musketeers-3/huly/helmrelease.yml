@@ -1,0 +1,361 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: huly
+  namespace: huly
+spec:
+  chart:
+    spec:
+      chart: polymorphic-app
+      reconcileStrategy: ChartVersion
+      version: 1.2.8
+      sourceRef:
+        kind: HelmRepository
+        name: polymorphic
+        namespace: flux-system
+  interval: 10m0s
+  values:
+    # envFrom:
+    #   - secretRef: 
+    #       name: huly-secret
+    #   - configmapRef:
+    #       name: huly-config
+    services:
+    - name: account
+      image:
+        repository: hardcoreeng/account
+        tag: latest
+      healthcheck:
+        enabled: false
+      env: 
+        - name: ACCOUNTS_URL
+          value: "huly-account-svc.huly.svc.cluster.local"
+        - name: ACCOUNT_PORT
+          value: "3000"
+        - name: FRONT_URL
+          value: "http://huly.example"
+        - name: MINIO_ACCESS_KEY
+          value: minioadmin
+        - name: MINIO_ENDPOINT
+          value: "minio"
+        - name: MINIO_SECRET_KEY
+          value: "minioadmin"
+        - name: MODEL_ENABLED
+          value: "*"
+        - name: MONGO_URL
+          value: "huly-mongodb-svc.huly.svc.cluster.local"   #need to check
+        - name: SERVER_SECRET
+          value: "secret"  #need to check
+        - name: TRANSACTOR_URL
+          value: "ws://transactor:3333;ws://localhost:3333" #need to check
+        - name: ENDPOINT_URL
+          value: "ws://huly-transactor-svc.huly.svc.cluster.local"
+      ports:
+      - name: http
+        containerPort: 3000
+      service:
+        enabled: true
+        type: ClusterIP
+        ports:
+        - port: 80
+          targetPort: 3000
+      # ingress:
+      #   enabled: true
+      #   className: traefik
+      #   hosts:
+      #     - host: app.example.com
+      #       paths: /
+
+    - name: collaborator
+      image:
+        repository: hardcoreeng/collaborator
+        tag: latest
+      healthcheck:
+        enabled: false
+      env: 
+        - name: ACCOUNTS_URL
+          value: "huly-account-svc.huly.svc.cluster.local"
+        - name: COLLABORATOR_PORT
+          value: "3078"
+        - name: MINIO_ACCESS_KEY
+          value: minioadmin
+        - name: MINIO_ENDPOINT
+          value: "minio"
+        - name: MINIO_SECRET_KEY
+          value: "minioadmin"
+        - name: MONGO_URL
+          value: "huly-mongodb-svc.huly.svc.cluster.local"   #need to check
+        - name: SECRET
+          value: "secret" #need to check
+      ports:
+      - name: http
+        containerPort: 3078
+      service:
+        enabled: true
+        type: ClusterIP
+        ports:
+          - port: 80
+            targetPort: 3078
+      # ingress:
+      #   enabled: true
+      #   className: traefik
+      #   hosts:
+      #     - host: collaborator.huly.example
+      #       paths: /
+
+    - name: elastic
+      image:
+        repository: elasticsearch
+        tag: 7.14.2
+      healthcheck:
+        enabled: false
+      env: 
+        - name: BITNAMI_DEBUG
+          value: "true"
+        - name: ELASTICSEARCH_PORT_NUMBER
+          value: "9200"
+        - name: ES_JAVA_OPTS
+          value: "-Xms1024m -Xmx1024m" #need to check
+        - name: discovery.type
+          value: "single-node"
+        - name: http.cors.allow-origin
+          value: "http://localhost:8082"  #need to check
+        - name: http.cors.enabled
+          value: "true"
+      ports:
+      - name: http
+        containerPort: 9200
+        # hostPort: 9200
+      volumeMounts:
+        - mountPath: /usr/share/elasticsearch/data
+          name: elastic
+      volumes: 
+        - name: elastic
+          persistentVolumeClaim:
+            claimName: elastic
+      service:
+        enabled: true
+        type: ClusterIP
+        ports:
+          - port: 9200
+            targetPort: 9200
+
+    - name: front
+      image:
+        repository: hardcoreeng/front
+        tag: latest
+      healthcheck:
+        enabled: false
+      env: 
+        - name: ACCOUNTS_URL
+          value: "huly-account-svc.huly.svc.cluster.local"
+        - name: CALENDAR_URL
+          value: "http://calendar"  #need to check
+        - name: COLLABORATOR_API_URL
+          value: "huly-collaborator-svc.huly.svc.cluster.local" #need to check
+        - name: COLLABORATOR_URL
+          value: "ws://huly-collaborator-svc.huly.svc.cluster.local" #need to check
+        - name: DEFAULT_LANGUAGE
+          value: "en"
+        - name: ELASTIC_URL
+          value: "http://elastic:9200/" #need to give
+        - name: GMAIL_URL
+          value: "http://gmail:8088" #need to check
+        - name: MINIO_ACCESS_KEY
+          value: "minioadmin"
+        - name: MINIO_ENDPOINT
+          value: "minio"
+        - name: MINIO_SECRET_KEY
+          value: "minioadmin"
+        - name: MONGO_URL
+          value: "huly-mongodb-svc.huly.svc.cluster.local"  
+        - name: REKONI_URL
+          value: "huly-rekoni-svc.huly.svc.cluster.local"
+        - name: SERVER_PORT
+          value: "8080"
+        - name: SERVER_SECRET
+          value: "secret" #need to check
+        - name: TELEGRAM_URL
+          vaue: "http://telegram:8086" #need to check
+        - name: TITLE
+          value: "Huly Self Hosted" #need to check
+        - name: UPLOAD_URL
+          value: "/files" #need to check
+      ports:
+      - name: http
+        containerPort: 8080
+      service:
+        enabled: true
+        type: ClusterIP
+        ports:
+          - port: 80
+            targetPort: 8080
+      ingress:
+        enabled: true
+        className: traefik
+        hosts:
+          - host: huly.example
+            paths:
+            - path: / 
+              pathType: Prefix
+              servicePort: 80
+
+
+    - name: minio
+      image:
+        repository: minio/minio
+        tag: latest
+      healthcheck:
+        enabled: false
+      command: ["/bin/sh", "-c"]
+      args: [".server", "/data", "--address", ":9000", "--console-address", ":9001"]
+      ports:
+        containerPort: 9000
+        # hostPort: 9000
+        containerPort: 9001
+        # hostPort: 9001
+      volumeMounts:
+        - mountPath: /data
+          name: files
+      volumes: 
+        - name: files
+          persistentVolumeClaim:
+            claimName: minio
+      service:
+        enabled: true
+        type: ClusterIP
+        ports:
+          - port: 9000 #need to check
+            targetPort: 9000 #need to check
+          - port: 9001 #need to check
+            targetPort: 9001 #need to check
+
+    - name: mongodb
+      image:
+        repository: mongo
+        tag: 7-jammy
+      healthcheck:
+        enabled: false
+      env: 
+        - name: PGID
+          value: "1000"
+        - name: PUID
+          value: "1000"  
+      ports:
+      - name: http
+        containerPort: 27017
+      volumeMounts:
+        - mountPath: /data/db
+          name: db
+      volumes: 
+        - name: db
+          persistentVolumeClaim:
+            claimName: db
+      service:
+        enabled: true
+        type: ClusterIP
+        ports:
+          - port: 27017
+            targetPort: 27017
+
+    - name: rekoni
+      image:
+        repository: hardcoreeng/rekoni-service
+        tag: latest
+      healthcheck:
+        enabled: false
+      env: 
+        - name: SECRET
+          value: "secret"
+      ports:
+      - name: http
+        containerPort: 4004
+        # hostPort: 4004 
+      service:
+        enabled: true
+        type: ClusterIP
+        ports:
+          - port: 80
+            targetPort: 4004
+      # ingress:
+      #   enabled: true
+      #   className: traefik
+      #   hosts:
+      #     - host: rekoni.huly.example
+      #       paths: /
+
+    - name: transactor
+      image:
+        repository: hardcoreeng/transactor
+        tag: latest
+      healthcheck:
+        enabled: false
+      env: 
+        - name: ACCOUNTS_URL
+          value: "huly-account-svc.huly.svc.cluster.local"
+        - name: ELASTIC_INDEX_NAME
+          value: "huly_storage_index"  #need to check
+        - name: ELASTIC_URL
+          value: "http://elastic:9200/" #need to give
+        - name: FRONT_URL
+          value: "http://huly.example"
+        - name: MINIO_ACCESS_KEY
+          value: "minioadmin"
+        - name: MINIO_ENDPOINT
+          value: "minio"
+        - name: MINIO_SECRET_KEY
+          value: "minioadmin"
+        - name: MONGO_URL
+          value: "huly-mongodb-svc.huly.svc.cluster.local" #need to give
+        - name: REKONI_URL
+          value: "http://rekoni" #need to check in the config map they have used as http://rekoni.huly.example/ but in the env section they have used as http://rekoni
+        - name: SERVER_CURSOR_MAXTIMEMS
+          value: "30000"
+        - name: SERVER_PORT
+          value: "3333"
+        - name: SERVER_PROVIDER
+          value: "ws"
+        - name: SERVER_SECRET
+          value: "secret" 
+      ports:
+      - name: http
+        containerPort: 3333
+        # hostPort: 3333
+      service:
+        enabled: true
+        type: ClusterIP
+        ports:
+          - port: 80
+            targetPort: 3333
+      # ingress:
+      #   enabled: true
+      #   className: traefik
+      #   hosts:
+      #     - host: transactor.huly.example
+      #       paths: /
+        
+    - name: workspace
+      image:
+        repository: hardcoreeng/workspace
+        tag: latest
+      healthcheck:
+        enabled: false
+      env: 
+        - name: ACCOUNTS_URL
+          value: "huly-account-svc.huly.svc.cluster.local"
+        - name: MINIO_ACCESS_KEY
+          value: "minioadmin"
+        - name: MINIO_ENDPOINT
+          value: "minio"
+        - name: MINIO_SECRET_KEY
+          value: "minioadmin"
+        - name: MODEL_ENABLED
+          value: "*"
+        - name: MONGO_URL
+          value: "huly-mongodb-svc.huly.svc.cluster.local" #need to check
+        - name: SERVER_SECRET
+          value: "secret"
+        - name: TRANSACTOR_URL
+          value: "ws://transactor:3333;ws://localhost:3333" #need to check
+        - name: NOTIFY_INBOX_ONLY
+          value: "true"

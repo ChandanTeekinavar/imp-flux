@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: huly-config
+data:
+  ACCOUNTS_URL: 'account-svc.huly.svc.cluster.local'
+  COLLABORATOR_URL: 'account-svc.huly.svc.cluster.local'
+  COLLABORATOR_API_URL: 'http://collaborator.huly.example/'
+  FRONT_URL: 'http://huly.example'
+  REKONI_URL: 'http://rekoni.huly.example/'
+  TRANSACTOR_URL: 'ws://transactor.huly.example/'
+  MINIO_ENDPOINT: 'minio'
+  MONGO_URL: 'mongodb://mongodb:27017'
+  ELASTIC_URL: 'elastic-svc.huly.svc.cluster.local'
+  ELASTIC_INDEX_NAME: 'huly_storage_index'
