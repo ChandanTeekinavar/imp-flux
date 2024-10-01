@@ -210,8 +210,10 @@ spec:
       command: ["/bin/sh", "-c"]
       args: [".server", "/data", "--address", ":9000", "--console-address", ":9001"]
       ports:
+      - name: http
         containerPort: 9000
         # hostPort: 9000
+      - name: http1
         containerPort: 9001
         # hostPort: 9001
       volumeMounts:
@@ -225,9 +227,11 @@ spec:
         enabled: true
         type: ClusterIP
         ports:
-          - port: 9000 #need to check
+          - name: http
+            port: 9000 #need to check
             targetPort: 9000 #need to check
-          - port: 9001 #need to check
+          - name: http1
+            port: 9001 #need to check
             targetPort: 9001 #need to check
 
     - name: mongodb
