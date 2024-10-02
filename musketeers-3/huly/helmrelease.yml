@@ -210,7 +210,7 @@ spec:
       healthcheck:
         enabled: false
       command: ["/bin/sh", "-c"]
-      args: [".server", "/data", "--address", ":9000", "--console-address", ":9001"]
+      args: ["server", "/data", "--address", ":9000", "--console-address", ":9001"]
       ports:
       - name: http
         containerPort: 9000
