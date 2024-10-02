@@ -44,6 +44,8 @@ spec:
           value: "*"
         - name: MONGO_URL
           value: "huly-mongodb-svc.huly.svc.cluster.local"   #need to check
+        - name: DB_URL
+          value: "huly-mongodb-svc.huly.svc.cluster.local"
         - name: SERVER_SECRET
           value: "secret"  #need to check
         - name: TRANSACTOR_URL
@@ -168,7 +170,7 @@ spec:
         - name: MINIO_SECRET_KEY
           value: "minioadmin"
         - name: MONGO_URL
-          value: "huly-mongodb-svc.huly.svc.cluster.local"  
+          value: "huly-mongodb-svc.huly.svc.cluster.local" 
         - name: REKONI_URL
           value: "huly-rekoni-svc.huly.svc.cluster.local"
         - name: SERVER_PORT
@@ -310,7 +312,9 @@ spec:
         - name: MINIO_SECRET_KEY
           value: "minioadmin"
         - name: MONGO_URL
-          value: "huly-mongodb-svc.huly.svc.cluster.local" #need to give
+          value: "huly-mongodb-svc.huly.svc.cluster.local" 
+        - name: DB_URL
+          value: "huly-mongodb-svc.huly.svc.cluster.local"
         - name: REKONI_URL
           value: "http://rekoni" #need to check in the config map they have used as http://rekoni.huly.example/ but in the env section they have used as http://rekoni
         - name: SERVER_CURSOR_MAXTIMEMS
