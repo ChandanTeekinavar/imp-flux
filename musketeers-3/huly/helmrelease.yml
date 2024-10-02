@@ -29,7 +29,8 @@ spec:
         enabled: false
       env: 
         - name: ACCOUNTS_URL
-          value: "huly-account-svc.huly.svc.cluster.local"
+          # value: "huly-account-svc.huly.svc.cluster.local"
+          value: http://account.huly.example/ #given DNS name
         - name: ACCOUNT_PORT
           value: "3000"
         - name: FRONT_URL
@@ -43,15 +44,18 @@ spec:
         - name: MODEL_ENABLED
           value: "*"
         - name: MONGO_URL
-          value: "huly-mongodb-svc.huly.svc.cluster.local"   #need to check
+          # value: "huly-mongodb-svc.huly.svc.cluster.local"   #need to check
+          value: "mongodb://mongodb:27017" #given DNS name
         - name: DB_URL
-          value: "huly-mongodb-svc.huly.svc.cluster.local"
+          # value: "huly-mongodb-svc.huly.svc.cluster.local"
+          value: "mongodb://mongodb:27017"  #given DNS name
         - name: SERVER_SECRET
           value: "secret"  #need to check
         - name: TRANSACTOR_URL
           value: "ws://transactor:3333;ws://localhost:3333" #need to check
         - name: ENDPOINT_URL
-          value: "ws://huly-transactor-svc.huly.svc.cluster.local"
+          # value: "ws://huly-transactor-svc.huly.svc.cluster.local"
+          value: "ws://transactor.huly.example/"
       ports:
       - name: http
         containerPort: 3000
@@ -61,12 +65,15 @@ spec:
         ports:
         - port: 80
           targetPort: 3000
-      # ingress:
-      #   enabled: true
-      #   className: traefik
-      #   hosts:
-      #     - host: app.example.com
-      #       paths: /
+      ingress:
+        enabled: true
+        className: traefik
+        hosts:
+          - host: account.huly.example
+            paths:
+            - path: / 
+              pathType: Prefix
+              servicePort: 80
 
     - name: collaborator
       image:
@@ -76,7 +83,8 @@ spec:
         enabled: false
       env: 
         - name: ACCOUNTS_URL
-          value: "huly-account-svc.huly.svc.cluster.local"
+          # value: "huly-account-svc.huly.svc.cluster.local"
+          value: "http://account"
         - name: COLLABORATOR_PORT
           value: "3078"
         - name: MINIO_ACCESS_KEY
@@ -86,7 +94,8 @@ spec:
         - name: MINIO_SECRET_KEY
           value: "minioadmin"
         - name: MONGO_URL
-          value: "huly-mongodb-svc.huly.svc.cluster.local"   #need to check
+          #value: "huly-mongodb-svc.huly.svc.cluster.local"   #need to check
+          value: "mongodb://mongodb:27017" #given DNS name
         - name: SECRET
           value: "secret" #need to check
       ports:
@@ -98,12 +107,16 @@ spec:
         ports:
           - port: 80
             targetPort: 3078
-      # ingress:
-      #   enabled: true
-      #   className: traefik
-      #   hosts:
-      #     - host: collaborator.huly.example
-      #       paths: /
+      ingress:
+        enabled: true
+        className: traefik
+        hosts:
+          - host: collaborator.huly.example
+            paths:
+            - path: / 
+              pathType: Prefix
+              servicePort: 80
+
 
     - name: elastic
       image:
@@ -150,13 +163,16 @@ spec:
         enabled: false
       env: 
         - name: ACCOUNTS_URL
-          value: "huly-account-svc.huly.svc.cluster.local"
+          # value: "huly-account-svc.huly.svc.cluster.local"
+          value: "http://account.huly.example/" #given DNS
         - name: CALENDAR_URL
           value: "http://calendar"  #need to check
         - name: COLLABORATOR_API_URL
-          value: "huly-collaborator-svc.huly.svc.cluster.local" #need to check
+          # value: "huly-collaborator-svc.huly.svc.cluster.local" #need to check
+          value: "http://collaborator.huly.example/" #given DNS
         - name: COLLABORATOR_URL
-          value: "ws://huly-collaborator-svc.huly.svc.cluster.local" #need to check
+          #value: "ws://huly-collaborator-svc.huly.svc.cluster.local" #need to check
+          value: "ws://collaborator.huly.example/" #given DNS
         - name: DEFAULT_LANGUAGE
           value: "en"
         - name: ELASTIC_URL
@@ -170,9 +186,11 @@ spec:
         - name: MINIO_SECRET_KEY
           value: "minioadmin"
         - name: MONGO_URL
-          value: "huly-mongodb-svc.huly.svc.cluster.local" 
+          # value: "huly-mongodb-svc.huly.svc.cluster.local" 
+          value: "mongodb://mongodb:27017" #given DNS
         - name: REKONI_URL
-          value: "huly-rekoni-svc.huly.svc.cluster.local"
+          # value: "huly-rekoni-svc.huly.svc.cluster.local"
+          value: "http://rekoni.huly.example/" #given DNS
         - name: SERVER_PORT
           value: "8080"
         - name: SERVER_SECRET
@@ -283,12 +301,15 @@ spec:
         ports:
           - port: 80
             targetPort: 4004
-      # ingress:
-      #   enabled: true
-      #   className: traefik
-      #   hosts:
-      #     - host: rekoni.huly.example
-      #       paths: /
+      ingress:
+        enabled: true
+        className: traefik
+        hosts:
+          - host: rekoni.huly.example
+            paths:
+            - path: / 
+              pathType: Prefix
+              servicePort: 80
 
     - name: transactor
       image:
@@ -298,7 +319,8 @@ spec:
         enabled: false
       env: 
         - name: ACCOUNTS_URL
-          value: "huly-account-svc.huly.svc.cluster.local"
+          # value: "huly-account-svc.huly.svc.cluster.local"
+          value: "http://account.huly.example/" #given DNS name
         - name: ELASTIC_INDEX_NAME
           value: "huly_storage_index"  #need to check
         - name: ELASTIC_URL
@@ -312,9 +334,11 @@ spec:
         - name: MINIO_SECRET_KEY
           value: "minioadmin"
         - name: MONGO_URL
-          value: "huly-mongodb-svc.huly.svc.cluster.local" 
+          # value: "huly-mongodb-svc.huly.svc.cluster.local" 
+          value: "mongodb://mongodb:27017" #given DNS name
         - name: DB_URL
-          value: "huly-mongodb-svc.huly.svc.cluster.local"
+          # value: "huly-mongodb-svc.huly.svc.cluster.local"
+          value: "mongodb://mongodb:27017" #given DNS name
         - name: REKONI_URL
           value: "http://rekoni" #need to check in the config map they have used as http://rekoni.huly.example/ but in the env section they have used as http://rekoni
         - name: SERVER_CURSOR_MAXTIMEMS
@@ -335,12 +359,15 @@ spec:
         ports:
           - port: 80
             targetPort: 3333
-      # ingress:
-      #   enabled: true
-      #   className: traefik
-      #   hosts:
-      #     - host: transactor.huly.example
-      #       paths: /
+      ingress:
+        enabled: true
+        className: traefik
+        hosts:
+          - host: transactor.huly.example
+            paths:
+            - path: / 
+              pathType: Prefix
+              servicePort: 80
         
     - name: workspace
       image:
@@ -350,7 +377,8 @@ spec:
         enabled: false
       env: 
         - name: ACCOUNTS_URL
-          value: "huly-account-svc.huly.svc.cluster.local"
+          # value: "huly-account-svc.huly.svc.cluster.local"
+          value: "http://account.huly.example/" #given DNS name
         - name: MINIO_ACCESS_KEY
           value: "minioadmin"
         - name: MINIO_ENDPOINT
@@ -360,7 +388,8 @@ spec:
         - name: MODEL_ENABLED
           value: "*"
         - name: MONGO_URL
-          value: "huly-mongodb-svc.huly.svc.cluster.local" #need to check
+          # value: "huly-mongodb-svc.huly.svc.cluster.local" #need to check
+          value: "mongodb://mongodb:27017" #given DNS name
         - name: SERVER_SECRET
           value: "secret"
         - name: TRANSACTOR_URL
