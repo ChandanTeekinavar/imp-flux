@@ -15,6 +15,9 @@ spec:
         namespace: flux-system
   interval: 10m0s
   values:
+    # fullnameOverride: "huly"
+    # prefixWithReleaseName:
+    #   enabled: false
     # envFrom:
     #   - secretRef: 
     #       name: huly-secret
@@ -45,14 +48,17 @@ spec:
           value: "*"
         - name: MONGO_URL
           # value: "huly-mongodb-svc.huly.svc.cluster.local"   #need to check
-          value: "mongodb://mongodb:27017" #given DNS name
+          # value: "mongodb://mongodb:27017" #given DNS name
+          value: "mongodb://huly-mongodb-svc:27017" #given DNS name
         - name: DB_URL
           # value: "huly-mongodb-svc.huly.svc.cluster.local"
-          value: "mongodb://mongodb:27017"  #given DNS name
+          # value: "mongodb://mongodb:27017"  #given DNS name
+          value: "mongodb://huly-mongodb-svc:27017" #given DNS name
         - name: SERVER_SECRET
           value: "secret"  #need to check
         - name: TRANSACTOR_URL
-          value: "ws://transactor:3333;ws://localhost:3333" #need to check
+          # value: "ws://transactor:3333;ws://localhost:3333" #need to check
+          value: "ws://huly-transactor-svc:3333;ws://localhost:3333" #need to check
         - name: ENDPOINT_URL
           # value: "ws://huly-transactor-svc.huly.svc.cluster.local"
           value: "ws://transactor.huly.example/"
@@ -84,7 +90,8 @@ spec:
       env: 
         - name: ACCOUNTS_URL
           # value: "huly-account-svc.huly.svc.cluster.local"
-          value: "http://account"
+          # value: "http://account"
+          value: "http://huly-account-svc"
         - name: COLLABORATOR_PORT
           value: "3078"
         - name: MINIO_ACCESS_KEY
@@ -95,7 +102,8 @@ spec:
           value: "minioadmin"
         - name: MONGO_URL
           #value: "huly-mongodb-svc.huly.svc.cluster.local"   #need to check
-          value: "mongodb://mongodb:27017" #given DNS name
+          # value: "mongodb://mongodb:27017" #given DNS name
+          value: "mongodb://huly-mongodb-svc:27017"
         - name: SECRET
           value: "secret" #need to check
       ports:
@@ -178,7 +186,8 @@ spec:
         - name: DEFAULT_LANGUAGE
           value: "en"
         - name: ELASTIC_URL
-          value: "http://elastic:9200/" #need to give
+          # value: "http://elastic:9200/"
+          value: "http://huly-elastic-svc:9200/"
         - name: GMAIL_URL
           value: "http://gmail:8088" #need to check
         - name: MINIO_ACCESS_KEY
@@ -189,7 +198,8 @@ spec:
           value: "minioadmin"
         - name: MONGO_URL
           # value: "huly-mongodb-svc.huly.svc.cluster.local" 
-          value: "mongodb://mongodb:27017" #given DNS
+          # value: "mongodb://mongodb:27017" #given DNS
+          value: "mongodb://huly-mongodb-svc:27017"
         - name: REKONI_URL
           # value: "huly-rekoni-svc.huly.svc.cluster.local"
           value: "http://rekoni.huly.example/" #given DNS
@@ -326,7 +336,8 @@ spec:
         - name: ELASTIC_INDEX_NAME
           value: "huly_storage_index"  #need to check
         - name: ELASTIC_URL
-          value: "http://elastic:9200/" #need to give
+          # value: "http://elastic:9200/"
+          value: "http://huly-elastic-svc:9200/"
         - name: FRONT_URL
           value: "http://huly.example"
         - name: MINIO_ACCESS_KEY
@@ -337,12 +348,15 @@ spec:
           value: "minioadmin"
         - name: MONGO_URL
           # value: "huly-mongodb-svc.huly.svc.cluster.local" 
-          value: "mongodb://mongodb:27017" #given DNS name
+          # value: "mongodb://mongodb:27017" #given DNS name
+          value: "mongodb://huly-mongodb-svc:27017"
         - name: DB_URL
           # value: "huly-mongodb-svc.huly.svc.cluster.local"
-          value: "mongodb://mongodb:27017" #given DNS name
+          # value: "mongodb://mongodb:27017" #given DNS name
+          value: "mongodb://huly-mongodb-svc:27017"
         - name: REKONI_URL
-          value: "http://rekoni" #need to check in the config map they have used as http://rekoni.huly.example/ but in the env section they have used as http://rekoni
+          # value: "http://rekoni" #need to check in the config map they have used as http://rekoni.huly.example/ but in the env section they have used as http://rekoni
+          value: "http://huly-rekoni-svc"
         - name: SERVER_CURSOR_MAXTIMEMS
           value: "30000"
         - name: SERVER_PORT
@@ -391,10 +405,12 @@ spec:
           value: "*"
         - name: MONGO_URL
           # value: "huly-mongodb-svc.huly.svc.cluster.local" #need to check
-          value: "mongodb://mongodb:27017" #given DNS name
+          # value: "mongodb://mongodb:27017" #given DNS name
+          value: "mongodb://huly-mongodb-svc:27017"
         - name: SERVER_SECRET
           value: "secret"
         - name: TRANSACTOR_URL
-          value: "ws://transactor:3333;ws://localhost:3333" #need to check
+          # value: "ws://transactor:3333;ws://localhost:3333" #need to check
+          value: "ws://huly-transactor-svc:3333;ws://localhost:3333"
         - name: NOTIFY_INBOX_ONLY
           value: "true"
