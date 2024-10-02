@@ -124,6 +124,8 @@ spec:
         tag: 7.14.2
       healthcheck:
         enabled: false
+      command: ["/bin/sh", "-c"]
+      args: ["./bin/elasticsearch-plugin list | grep -q ingest-attachment || yes | ./bin/elasticsearch-plugin install --silent ingest-attachment && /usr/local/bin/docker-entrypoint.sh eswrapper"]
       env: 
         - name: BITNAMI_DEBUG
           value: "true"
