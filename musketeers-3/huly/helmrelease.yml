@@ -209,7 +209,7 @@ spec:
         tag: latest
       healthcheck:
         enabled: false
-      command: ["/bin/sh", "-c"]
+      # command: ["/bin/sh", "-c"]
       args: ["server", "/data", "--address", ":9000", "--console-address", ":9001"]
       ports:
       - name: http
