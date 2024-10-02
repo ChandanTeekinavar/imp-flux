@@ -178,7 +178,7 @@ spec:
         - name: SERVER_SECRET
           value: "secret" #need to check
         - name: TELEGRAM_URL
-          vaue: "http://telegram:8086" #need to check
+          value: "http://telegram:8086" #need to check
         - name: TITLE
           value: "Huly Self Hosted" #need to check
         - name: UPLOAD_URL
