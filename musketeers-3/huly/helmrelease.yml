@@ -27,7 +27,7 @@ spec:
     - name: account
       image:
         repository: hardcoreeng/account
-        tag: latest
+        tag: v0.6.295 #latest
       healthcheck:
         enabled: false
       env: 
@@ -84,7 +84,7 @@ spec:
     - name: collaborator
       image:
         repository: hardcoreeng/collaborator
-        tag: latest
+        tag: v0.6.295 #latest
       healthcheck:
         enabled: false
       env: 
@@ -168,7 +168,7 @@ spec:
     - name: front
       image:
         repository: hardcoreeng/front
-        tag: latest
+        tag: v0.6.295 #latest
       healthcheck:
         enabled: false
       env: 
@@ -297,7 +297,7 @@ spec:
     - name: rekoni
       image:
         repository: hardcoreeng/rekoni-service
-        tag: latest
+        tag: v0.6.295 #latest
       healthcheck:
         enabled: false
       env: 
@@ -326,7 +326,7 @@ spec:
     - name: transactor
       image:
         repository: hardcoreeng/transactor
-        tag: latest
+        tag: v0.6.295 #latest
       healthcheck:
         enabled: false
       env: 
@@ -385,35 +385,35 @@ spec:
               pathType: Prefix
               servicePort: 80
         
-    - name: workspace
-      image:
-        repository: hardcoreeng/workspace
-        tag: latest
-      healthcheck:
-        enabled: false
-      env: 
-        - name: ACCOUNTS_URL
-          # value: "huly-account-svc.huly.svc.cluster.local"
-          value: "http://account.huly.example/" #given DNS name
-        - name: MINIO_ACCESS_KEY
-          value: "minioadmin"
-        - name: MINIO_ENDPOINT
-          value: "minio"
-        - name: MINIO_SECRET_KEY
-          value: "minioadmin"
-        - name: MODEL_ENABLED
-          value: "*"
-        - name: MONGO_URL
-          # value: "huly-mongodb-svc.huly.svc.cluster.local" #need to check
-          # value: "mongodb://mongodb:27017" #given DNS name
-          value: "mongodb://huly-mongodb-svc:27017"
-        - name: DB_URL
-          # value: "mongodb://mongodb:27017"
-          value: "mongodb://huly-mongodb-svc:27017"
-        - name: SERVER_SECRET
-          value: "secret"
-        - name: TRANSACTOR_URL
-          # value: "ws://transactor:3333;ws://localhost:3333" #need to check
-          value: "ws://huly-transactor-svc:3333;ws://localhost:3333"
-        - name: NOTIFY_INBOX_ONLY
-          value: "true"
+    # - name: workspace
+    #   image:
+    #     repository: hardcoreeng/workspace
+    #     tag: v0.6.295 #latest
+    #   healthcheck:
+    #     enabled: false
+    #   env: 
+    #     - name: ACCOUNTS_URL
+    #       # value: "huly-account-svc.huly.svc.cluster.local"
+    #       value: "http://account.huly.example/" #given DNS name
+    #     - name: MINIO_ACCESS_KEY
+    #       value: "minioadmin"
+    #     - name: MINIO_ENDPOINT
+    #       value: "minio"
+    #     - name: MINIO_SECRET_KEY
+    #       value: "minioadmin"
+    #     - name: MODEL_ENABLED
+    #       value: "*"
+    #     - name: MONGO_URL
+    #       # value: "huly-mongodb-svc.huly.svc.cluster.local" #need to check
+    #       # value: "mongodb://mongodb:27017" #given DNS name
+    #       value: "mongodb://huly-mongodb-svc:27017"
+    #     - name: DB_URL
+    #       # value: "mongodb://mongodb:27017"
+    #       value: "mongodb://huly-mongodb-svc:27017"
+    #     - name: SERVER_SECRET
+    #       value: "secret"
+    #     - name: TRANSACTOR_URL
+    #       # value: "ws://transactor:3333;ws://localhost:3333" #need to check
+    #       value: "ws://huly-transactor-svc:3333;ws://localhost:3333"
+    #     - name: NOTIFY_INBOX_ONLY
+    #       value: "true"
