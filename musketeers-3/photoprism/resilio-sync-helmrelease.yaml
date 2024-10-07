@@ -45,7 +45,7 @@ spec:
           name: http
       ingress:
         enabled: true
-        className: "nginx"
+        className: "traefik" #"nginx"
         hosts:
           - host: sync.pride.improwised.dev
             paths:

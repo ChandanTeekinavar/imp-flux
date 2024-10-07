@@ -40,7 +40,7 @@ spec:
       path: /
       hosts:
       - photos.pride.improwised.dev
-      className: nginx
+      className: traefik #nginx
     resources:
       requests:
         cpu: 100m
