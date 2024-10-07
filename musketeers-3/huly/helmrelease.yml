@@ -332,7 +332,8 @@ spec:
       env: 
         - name: ACCOUNTS_URL
           # value: "huly-account-svc.huly.svc.cluster.local"
-          value: "http://account.huly.example/" #given DNS name
+          # value: "http://account.huly.example/" #given DNS name
+          value: "http://huly-account-svc"
         - name: ELASTIC_INDEX_NAME
           value: "huly_storage_index"  #need to check
         - name: ELASTIC_URL
