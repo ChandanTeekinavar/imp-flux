@@ -1,0 +1,245 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: prometheus
+  namespace: prometheus
+spec:
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      retries: 3
+  releaseName: prometheus
+  chart:
+    spec:
+      chart: kube-prometheus-stack
+      version: 61.7.2
+      sourceRef:
+        kind: HelmRepository
+        name: prometheus-community
+        namespace: flux-system
+  interval: 10m0s
+  values:
+    #  grafana:
+    #    enabled: false
+    #  alertmanager:
+    #   config:
+    #     global:
+    #       slack_api_url: "https://talk.improwised.com/hooks/91rz8cc69bgftgrqgwh5dx988e"
+    #     route:       
+    #       receiver: 'robusta'
+    #       routes:
+    #       - receiver: 'robusta'
+    #         # matchers:
+    #         #   - alertname =~ "Watchdog"
+    #     receivers:
+    #     - name: 'robusta'
+    #       webhook_configs:
+    #       - url: "http://robusta-runner.robusta.svc.cluster.local/api/alerts"
+    #         send_resolved: true
+    #         # # title: 'urgent action needed Instance is down'
+    #         # # tittle: 'Urgent action needed: {{ .CommonAnnotations.summary }}'
+    #         # title: 'Urgent action needed: {{ .GroupLabels.alertname }}'
+    #         # text: |
+    #         #   Severity: {{ .CommonLabels.severity }}
+    #         #   Pod: {{ .CommonLabels.pod }}
+    #         #   Namespace: {{ .CommonLabels.namespace }}
+
+    # defaultRules:
+    #   rules:
+    #     kubeSchedulerAlerting: false
+    #     kubeSchedulerRecording: false
+    #     kubeControllerManager: false
+    #     kubeProxy: false
+    # additionalPrometheusRulesMap:
+    #   custom-rules:
+    #     groups:
+    #       - name: node_alert
+    #         rules:
+    #           - expr: 'absent(up{job="node-exporter",instance="10.0.15.236:9100"}) or absent(up{job="node-exporter",instance="10.0.15.221:9100"}) or absent(up{job="node-exporter",instance="10.0.1.56:9100"}) or absent(up{job="node-exporter",instance="10.0.1.57:9100"}) or absent(up{job="node-exporter",instance="10.0.1.58:9100"}) > 0'
+    #             alert: NodeDown
+    #             for: 1m
+    #             labels:
+    #               severity: critical
+    #             annotations:
+    #               summary: Instance is down
+    # grafana:
+    #   enabled: false
+    #   # adminPassword: musketeers
+    #   # ingress:
+    #   #   enabled: true
+    #   #   ingressClassName: nginx
+    #   #   hosts:
+    #   #     - grafana.musketeers.local
+    # alertmanager:
+    #   alertmanagerSpec:
+    #     replicas: 2
+    #   config:
+    #     global:
+    #       slack_api_url: "https://talk.improwised.com/hooks/xtpodbkoz3gfuniaxn3brkjodo"
+    #     route:
+    #       receiver: "slack"
+    #       routes:
+    #         - match:
+    #             receiver: "slack"
+    #           continue: true
+    #         - match:
+    #             receiver: "robusta"
+    #           continue: true
+    #     receivers:
+    #       - name: "slack"
+    #         slack_configs:
+    #           - channel: "musketeers-alerts" # channel of prometheus alert
+    #             send_resolved: true
+    #             title: '[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] Monitoring Event Notification'
+    #             text: >-
+    #               {{ range .Alerts }}
+    #                 *Alert:* {{ .Annotations.summary }} - `{{ .Labels.severity }}`
+    #                 *Description:* {{ .Annotations.description }}
+    #                 *Graph:* <{{ .GeneratorURL }}|:chart_with_upwards_trend:> *Runbook:* <{{ .Annotations.runbook }}|:spiral_note_pad:>
+    #                 *Details:*
+    #                 {{ range .Labels.SortedPairs }} • *{{ .Name }}:* `{{ .Value }}`
+    #                 {{ end }}
+    #               {{ end }}
+    #       - name: "robusta"
+    #         webhook_configs:
+    #           - url: "http://robusta-helmrelease-runner.robusta.svc.cluster.local/api/alerts"
+    #             send_resolved: true
+    #   ingressPerReplica:
+    #     enabled: true
+    #     hostPrefix: "alertmanager"
+    #     hostDomain: "musketeers.local"
+    #     ingressClassName: traefik #nginx
+    #     paths:
+    #       - /
+    #     pathType: ImplementationSpecific
+    #   servicePerReplica:
+    #     enabled: true
+    # prometheus:
+    #   prometheusSpec:
+    #     replicas: 2
+    #     storageSpec:
+    #       volumeClaimTemplate:
+    #         spec:
+    #           storageClassName: local-path
+    #           accessModes: ["ReadWriteOnce"]
+    #           resources:
+    #             requests:
+    #               storage: 30Gi
+    #     configMaps: 
+    #       - kube-prometheus-stack-kube-state-metrics-customresourcestate-config
+    #   ingressPerReplica:
+    #     enabled: true
+    #     hostPrefix: "prometheus"
+    #     hostDomain: "musketeers.local"
+    #     ingressClassName: nginx
+    #     paths:
+    #       - /
+    #     pathType: ImplementationSpecific
+    #   servicePerReplica:
+    #     enabled: true
+    #   # additionalScrapeConfigs:
+    #   #   - job_name: cert-manager
+    #   #     static_configs:
+    #   #       - targets: ["10.43.63.5:9402"]
+
+    grafana:
+      enabled: false
+    prometheusOperator:
+      prometheusConfigReloader:
+        resources:
+          limits:
+            cpu: 1000m
+            memory: 3000Mi
+          requests:
+            cpu: 10m
+            memory: 1000Mi
+    # additionalPrometheusRulesMap:
+    #   rule-name:
+    #     groups:
+    #       - name: longhorn
+    #         rules:
+    #           - alert: longhorn_backup_failed
+    #             annotations:
+    #               description: Longhorn backup failed for {{ $labels.volume }}
+    #               summary: Longhorn backup failed
+    #             expr: longhorn_backup_state == 4
+    #             for: 10s
+    #             labels:
+    #               severity: critical
+    alertmanager:
+      alertmanagerSpec:
+        replicas: 2
+        # podAntiAffinity: "hard"
+      config:
+        global:
+          slack_api_url: https://talk.improwised.com/hooks/91rz8cc69bgftgrqgwh5dx988e
+        receivers:
+          - name: "robusta"
+            webhook_configs:
+              - url: "http://robusta-helmrelease-runner.robusta.svc.cluster.local/api/alerts"
+                send_resolved: true
+        route:
+          receiver: "robusta"
+          routes:
+            - receiver: "robusta"
+    defaultRules:
+      rules:
+        kubeControllerManager: false
+        kubeProxy: false
+        kubeSchedulerAlerting: false
+        kubeSchedulerRecording: false
+        kubeProxy: false
+    prometheus:
+    #   additionalServiceMonitors:
+    #     - additionalLabels:
+    #         name: longhorn-prometheus-servicemonitor
+    #       endpoints:
+    #         - port: manager
+    #       name: longhorn-prometheus-servicemonitor
+    #       namespaceSelector:
+    #         any: false
+    #         matchNames:
+    #           - longhorn-system
+    #       selector:
+    #         matchLabels:
+    #           app: longhorn-manager
+      prometheusSpec:
+        replicas: 2
+        retention: 3d
+        retentionSize: 15GB
+        # podAntiAffinity: "hard"
+        storageSpec:
+          volumeClaimTemplate:
+            spec:
+              storageClassName: local-path
+              accessModes: ["ReadWriteOnce"]
+              resources:
+                requests:
+                  storage: 20Gi
+        # additionalScrapeConfigs:
+        #   - job_name: cert-manager
+        #     static_configs:
+        #       - targets: ["10.43.237.138:9402"]
+        #   - job_name: "healthchecks-prometheus-alert"
+        #     scheme: https
+        #     metrics_path: /projects/06953423-57b0-465b-88a3-42436392c8fa/metrics/8SQddIAbP12PN7kyJeR8-Vo7AxWOJP7w
+        #     static_configs:
+        #       - targets: ["healthchecks.improwised.dev"]
+        #   - job_name: "prometheus-monitoring"
+        #     scrape_timeout: 1m0s
+        #     scrape_interval: 1m0s
+        #     metrics_path: /probe
+        #     params:
+        #       module: [http_2xx]
+        #     static_configs:
+        #       - targets:
+        #           - http://healthchecks-web-svc.healthchecks:8000/ping/fbce37ec-4f94-4712-8d02-41306d399aa6
+        #     relabel_configs:
+        #       - source_labels: [__address__]
+        #         target_label: __param_target
+        #       - source_labels: [__param_target]
+        #         target_label: instance
+        #       - target_label: __address__
+        #         replacement: blackbox-exporter-prometheus-blackbox-exporter.prometheus:9115

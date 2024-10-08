@@ -1,0 +1,46 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: loki
+  namespace: loki
+spec:
+  chart:
+    spec:
+      chart: loki-stack
+      reconcileStrategy: ChartVersion
+      # version: 2.9.10
+      version: 2.10.2
+      sourceRef:
+        kind: HelmRepository
+        name: grafana-loki
+        namespace: flux-system
+  interval: 10m0s
+  values:
+    loki:
+      persistence:
+        enabled: true
+        size: 30Gi
+      resources:
+        requests:
+          cpu: 100m
+          memory: 128Mi
+        # limits:
+        #   cpu: 1500m
+      config:
+        limits_config:
+          retention_period: 600h
+        compactor:
+          compaction_interval: 5m
+          shared_store: filesystem
+          retention_enabled: true
+          retention_delete_delay: 5m
+          retention_delete_worker_count: 15
+        table_manager:
+          retention_deletes_enabled: true
+          retention_period: 600h
+    promtail:
+      resources:
+        requests:
+          cpu: 100m
+          memory: 128Mi

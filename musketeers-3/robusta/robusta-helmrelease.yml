@@ -1,0 +1,58 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: robusta-helmrelease
+  namespace: robusta
+spec:
+  chart:
+    spec:
+      chart: robusta
+      reconcileStrategy: ChartVersion
+      version: 0.12.0
+      sourceRef:
+        kind: HelmRepository
+        name: robusta-helm-source
+        namespace: flux-system
+  interval: 10m0s
+  values:
+    clusterName: musketeers-3
+    globalConfig:
+      signing_key: "null"
+      account_id: 2e9ff790-a750-46c0-94bd-db8ccc601c60
+    sinksConfig:
+      - robusta_sink:
+          name: robusta_ui_sink
+          token: eyJhY2NvdW50X2lkIjoiMmU5ZmY3OTAtYTc1MC00NmMwLTk0YmQtZGI4Y2NjNjAxYzYwIiwiYXBpX2tleSI6ImV5SmhiR2NpT2lKSVV6STFOaUlzSW5SNWNDSTZJa3BYVkNKOS5leUFnQ2lBZ0lDQWljbTlzWlNJNklDSnpaWEoyYVdObFgzSnZiR1VpTEFvZ0lDQWdJbWx6Y3lJNklDSnpkWEJoWW1GelpTMWtaVzF2SWl3S0lDQWdJQ0pwWVhRaU9pQXhOalF4TnpZNU1qQXdMQW9nSUNBZ0ltVjRjQ0k2SURFM09UazFNelUyTURBS2ZRLkRhWWxORW9VcnJFbjJJZzd0cWliUy1QSEs1dmd1c2JjYm83WDM2WFZ0NFEiLCJzdG9yZV91cmwiOiJodHRwczovL2FwcC5wbGF0Zm9ybWVuZ2luZWVycy5pbiIsImVtYWlsIjoibXVuaXIrbXVza2V0ZWVyczNAaW1wcm93aXNlZC5jb20iLCJwYXNzd29yZCI6InJNQlNNT1RUclROaG90NnkifQ==
+      - mattermost_sink:
+          name: musketeers-3-alert
+          url: https://talk.improwised.com
+          token: xqsi4gp6xbdpiy7539jbbdfqch
+          token_id: j87y8negrind9mf6izzq3f8djw
+          channel: musketeers-3-alert
+          team_id: urr14u3kxjr1mf7nor19xrbd6o
+          scope:
+            include:
+              - severity: [HIGH, MEDIUM]
+    customPlaybooks:
+      - actions:
+          - alert_on_hpa_reached_limit: {}
+        triggers:
+          - on_horizontalpodautoscaler_all_changes: {}
+      - triggers:
+          - on_pod_crash_loop:
+              restart_reason: "CrashLoopBackOff"
+        actions:
+          - pod_events_enricher: {}
+    # enablePrometheusStack: true
+    # enablePlatformPlaybooks: true
+    disableCloudRouting: false
+    # runner:
+    #   sendAdditionalTelemetry: false
+    #   log_level: WARN
+    # kubewatch:
+    #   additional_env_vars:
+    #     - name: LOG_LEVEL
+    #       value: WARN
+    rsa:
+      private: LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFb2dJQkFBS0NBUUVBL2tuaG41VXF3THRDdGN6eGRQakVubFlTbitTTnFkQkJJNzVnWW5Ya3lYY3g5dElSCkNsbU8wOUk5ZWNvREpsOW0zKzJGQkRINDN2cVlBeE1xekt6TUE0R0xrdlFoWlFxT25MRVNCU3JNcUFNeXZsOC8KWE80K3ViQ1ZUM0RkVHhjTzlHZnJMaW1OdGtRcWtxRkhQUllmenkxcG0vbXRFZERwcC9jTjAremN3S25VR1U3Ugo5b1hhRWhJc1ZzeEVaYVEvSzBWVDRJN0RJMDBndnFHYm1ZRVlVZFNCN0VPTFZIOFJyc2pCL216Tkp1NmUzMFVGCmZpVnJ5T0xVNVhQc3ZRcjlZRTFzc0tuaGNwU2dDUGlXSno4bTZ6RHRJVFJPbWtWTHBScC9jYTdERU8wbWxEUFIKNTRGRzMyRXVwWmNJdERmalFZQXl1NGtoNEJuckZHTDB4WjNybndJREFRQUJBb0lCQURvaG5haWpxeUJnTHNIcwoxZzROaUxWQnJBUk5kVzBxcEptTlBlK0VVQWNXYnAra0tpMFppQ000WHNGbXd3MlVwYW52WEljMi9WUE1LZEFhCkk2Q2lxQWp0Sm9FenVpYWxJVEVFOGIrb3B4eUpqcUlpbUJPZ2kwcGI2ZVk5UVBxQnBQT09oaDhKZE5JRUIwOTUKK3hVbDU2T3ZHQU9HTW1CdVI5d1VDRjg0T01iNkYxRHduVTlKb1puM3M0QXRYOWE2ZWRJSkVadGZJelZtWmhqNgpmQ01nbHNFVHo1N2JWclNMbHRHZ0orMGdvOWorRXFSVFZEQ1FVbGRYME5zRXo3cjRPOUdzWFIwMnlCWnpOQ1RZCkZjU1ZYRXlib3NxVmx6VzN5QVZvS05DRWNDd01sSE9HcDRpNG55TmpYS3R0Tjl5QmhpU1huSlNsNHI5NFYwZ0MKWXR4NDk0RUNnWUVBLzVvNXdPTjFmSGlWVDdNRzhkQXVvcFlHMDIzYktIZ0JERFBqb21QcFo3UkF2djJubHhxcQpKTjMwN3M1VnI3OWlpVGgxL0dmZTJxeUg5STd4cEFTMXgvUHJxS3cwRVVyWXZpb3ZwNEdCd1gwTUJVaVFCKzdTClpaNEIwaWZ5R0JhcWFiL1ZxZDR6NW9ybitRaThoSERZemNKdzhaa1c5elBlSVZDY1NUdWFrMkVDZ1lFQS9xOGgKOGpkNlNuZ0NRT0FLRk1LOExCdEN2dGZHek55dmtnR3hhWlRLTTV5SzFIeDhFNnNVbWt4UkhhRytsaTdSdERhMwpwc1R1bGl5ZWljS1M2Z2JVK1J0ME5OV0taZUxadlpPSGNaZVNoc2p5VGNBWkZtU29KWW1hNlZyZkFGWTJCQ1pNCmlkcWVFSGJnNUxWa2hsbyttM1V2K1RGd3hwOE96VWRhVzFFMzN2OENnWUE4bmFDUW8rQ2EwaVhtcnJnNDVId0sKeHJWN3NwUEV0eURZZWYzRDV4blZKQ1F1cHd6MWdyZFM0dWhSTWRHVVNqamQvZXZOSGZ6MXN2RFRDSXM1c0h4RApuUThJQXo2ZDB6Z3ZjT1c0UGJnOTRKL1hLT3d2VlczRDk0TExDZm9aeUZaRm1kN2IxL3hLOGlvdEh1dEdKVlRsCkJ2V3Q5ZlpDVGFTaUZmSGFWQzVHUVFLQmdDVjlSQ0x5ZGFibW1YWlJSRXFnQzdEMlpsSFBVMjB1Z3cyY0FEQ0oKZldZeGdlSWJYT3hNUDZFaTRNSGE0RUlkTERNNTVyaSt2bHdPdjF1Sjc3UlJReUpVSHp2enZ3YVdhUFRWOVpjTAo5NzZ0YjdWd05JRXVXZTRFbm5BQk4xaEdXSGN0NkJCV3hQT3BmQnRPZERpdXFnNmFKbkNwRFcrL1ZCOTFoR0J5CnlTV2pBb0dBSkd2V0RMVFFQRVpGM2REZENQME1IV2tlTEpWNCtMU0N5L3U2VERyWjRaeHNscVRxUG1JYnFMSFEKUzNZWjZZWkNsRGxmWGt6OTN0Tk9rWVJST0NzYVZtVEtIK2VLdGtQR1dlaE92cS9xRjd6SzhFcVRJb0JsT1FrSgpuMTh2ZmNpY3RrRU15eEpYQXhVZkFFUXZlbkI2eFJPdUc3ZUxyMWRWRXczY1A4cXhFTnc9Ci0tLS0tRU5EIFJTQSBQUklWQVRFIEtFWS0tLS0tCg==
+      public: LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlJQklqQU5CZ2txaGtpRzl3MEJBUUVGQUFPQ0FROEFNSUlCQ2dLQ0FRRUEva25objVVcXdMdEN0Y3p4ZFBqRQpubFlTbitTTnFkQkJJNzVnWW5Ya3lYY3g5dElSQ2xtTzA5STllY29ESmw5bTMrMkZCREg0M3ZxWUF4TXF6S3pNCkE0R0xrdlFoWlFxT25MRVNCU3JNcUFNeXZsOC9YTzQrdWJDVlQzRGRUeGNPOUdmckxpbU50a1Fxa3FGSFBSWWYKenkxcG0vbXRFZERwcC9jTjAremN3S25VR1U3UjlvWGFFaElzVnN4RVphUS9LMFZUNEk3REkwMGd2cUdibVlFWQpVZFNCN0VPTFZIOFJyc2pCL216Tkp1NmUzMFVGZmlWcnlPTFU1WFBzdlFyOVlFMXNzS25oY3BTZ0NQaVdKejhtCjZ6RHRJVFJPbWtWTHBScC9jYTdERU8wbWxEUFI1NEZHMzJFdXBaY0l0RGZqUVlBeXU0a2g0Qm5yRkdMMHhaM3IKbndJREFRQUIKLS0tLS1FTkQgUFVCTElDIEtFWS0tLS0tCg==
