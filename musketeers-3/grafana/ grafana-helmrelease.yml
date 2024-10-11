@@ -30,4 +30,4 @@ spec:
       path: /
       pathType: Prefix
       hosts:
-        - grafana.pride.improwised.dev
+        - grafana.local.improwised.dev
