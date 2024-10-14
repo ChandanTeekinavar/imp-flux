@@ -434,4 +434,4 @@ data:
             suspended:
             - spec
             - suspend
-          name: resource_info
+          name: resource_info    
