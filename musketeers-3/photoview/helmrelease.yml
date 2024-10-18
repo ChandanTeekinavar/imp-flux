@@ -1,0 +1,160 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: photoview
+  namespace: photoview
+spec:
+  chart:
+    spec:
+      chart: polymorphic-app
+      reconcileStrategy: ChartVersion
+      version: 2.1.1
+      sourceRef:
+        kind: HelmRepository
+        name: polymorphic
+        namespace: flux-system
+  interval: 10m0s
+  values:
+    services:
+    - name: ui
+      # kind: StatefulSet
+      image:
+        repository: chandanteekinavar/photoview-ui
+        tag: "2.0"
+      healthcheck:
+        enabled: false
+      env:
+        - name: REACT_APP_API_ENDPOINT
+          # value: "http://localhost:4001/"
+          value: "http://photoview-api-svc:4001/"
+      ports: 
+      - name: http
+        containerPort: 1234
+      volumeMounts:
+        - mountPath: /app
+          name: ui-app-volume
+      volumes:
+        - name: ui-app-volume
+          persistentVolumeClaim:
+            claimName: ui-app-volume
+      # volumeClaimTemplates:
+      # - metadata:
+      #     name: app-volume
+      #   spec:
+      #     accessModes: [ "ReadWriteOnce" ]
+      #     storageClassName: local-path
+      #     resources:
+      #       requests:
+      #         storage: 1Gi
+      service:
+        ports:
+        - name: http 
+          port: 1234
+          targetPort: 1234
+      command: ["/bin/sh", "-c"]
+      # args: ["npm ci", "npm run mon"]
+      # args: ["npm ci && npm run mon"]
+      args: ["npm ci && npm run mon"]
+    - name: api
+      image:
+        repository: chandanteekinavar/photoview-api
+        tag: "2.0"
+      healthcheck:
+        enabled: false
+      # envFrom:
+      #   - configMapRef:
+      #       name: api
+      env:
+        - name: PHOTOVIEW_DATABASE_DRIVER
+          value: "sqlite"
+        - name: PHOTOVIEW_SQLITE_PATH
+          value: "photoview.db"
+        - name: PHOTOVIEW_MYSQL_URL
+          # value: "photoview:photosecret@tcp(mysql)/photoview_test"
+          value: "photoview:photosecret@tcp(photoview-mariadb-svc:3306)/photoview_test"
+        - name: PHOTOVIEW_POSTGRES_URL
+          value: "postgres://photoview:photosecret@photoview-postgres-svc:5432/photoview_test"
+          # value: "postgres://photoview:photosecret@postgres:5432/photoview_test"
+        # - name: PHOTOVIEW_DATABASE_DRIVER
+        #   value: "sqlite"
+        # - name: PHOTOVIEW_SQLITE_PATH
+        #   value: "photoview.db"
+        - name: PHOTOVIEW_LISTEN_IP
+          value: "0.0.0.0"
+        - name: PHOTOVIEW_LISTEN_PORT
+          value: "4001"
+        - name: PHOTOVIEW_API_ENDPOINT
+          # value: "http://localhost:4001/"
+          value: "http://photoview-api-svc:4001/"
+        - name: PHOTOVIEW_UI_ENDPOINT
+          # value: "http://localhost:1234/"
+          value: "http://photoview-ui-svc:1234/"
+        - name: PHOTOVIEW_SERVE_UI
+          value: "0"
+        - name: PHOTOVIEW_DEVELOPMENT_MODE
+          value: "1"
+      ports: 
+      - name: http
+        containerPort: 4001
+      volumeMounts:
+        - mountPath: /app
+          name: api-app-volume
+      volumes:
+        - name: api-app-volume
+          persistentVolumeClaim:
+            claimName: api-app-volume
+      command: ["/bin/sh", "-c"]
+      args: ["export $(cat /env) && reflex -g '*.go' -s -- go run ."]
+      service:
+        ports:
+        - name: http 
+          port: 4001
+          targetPort: 4001
+    - name: mariadb
+      # kind: StatefulSet
+      image:
+        repository: mariadb
+        tag: lts #latest
+      healthcheck:
+        enabled: false
+      env:
+        - name: MYSQL_DATABASE
+          value: "photoview_test"
+        - name: MYSQL_USER
+          value: "photoview"
+        - name: MYSQL_PASSWORD
+          value: "photosecret"
+        - name: MYSQL_RANDOM_ROOT_PASSWORD
+          value: "yes"
+      ports: 
+      - name: http
+        containerPort: 3306
+      service:
+        ports:
+        - name: http 
+          port: 3306
+          targetPort: 3306
+    - name: postgres
+      image:
+        repository: postgres
+        tag: 16-alpine
+      healthcheck:
+        enabled: false
+      env:
+        - name: POSTGRES_DB
+          value: "photoview_test"
+        - name: POSTGRES_USER
+          value: "photoview"
+        - name: POSTGRES_PASSWORD
+          value: "photosecret"
+      ports: 
+      - name: http
+        containerPort: 5432
+      service:
+        ports:
+        - name: http 
+          port: 5432
+          targetPort: 5432
+
+      
