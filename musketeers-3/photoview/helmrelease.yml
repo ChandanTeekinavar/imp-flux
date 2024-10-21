@@ -55,8 +55,8 @@ spec:
           value: "sqlite" #"mysql"
         - name: PHOTOVIEW_SQLITE_PATH
           value: "photoview.db"
-        - name: PHOTOVIEW_MYSQL_URL
-          value: "photoview:photosecret@tcp(photoview-mariadb-svc:3306)/photoview_test"
+        # - name: PHOTOVIEW_MYSQL_URL
+        #   value: "photoview:photosecret@tcp(photoview-mariadb-svc:3306)/photoview_test"
         # - name: PHOTOVIEW_POSTGRES_URL
         #   value: "postgres://photoview:photosecret@photoview-postgres-svc:5432/photoview_test"
         - name: PHOTOVIEW_LISTEN_IP
